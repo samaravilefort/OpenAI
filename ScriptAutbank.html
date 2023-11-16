@@ -9,7 +9,7 @@
             color: white;
             font-family: Arial, sans-serif;
         }
-        
+
         h1, h2 {
             color: orange;
         }
@@ -65,7 +65,9 @@
                         const tables = this.getMatches(fileContent, tablePattern);
                         const indices = this.getMatches(fileContent, indexPattern);
 
-                        this.resultado = `Procedures (${procedures.length}):\n${[...new Set(procedures)].join('\n')}\n\n` +
+                        const uniqueProcedures = [...new Set(procedures)];
+
+                        this.resultado = `Procedures (${uniqueProcedures.length}):\n${uniqueProcedures.join('\n')}\n\n` +
                                          `Views (${views.length}):\n${views.join('\n')}\n\n` +
                                          `Triggers (${triggers.length}):\n${triggers.join('\n')}\n\n` +
                                          `Tabelas (${tables.length}):\n${tables.join('\n')}\n\n` +
