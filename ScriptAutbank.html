@@ -9,7 +9,7 @@
             color: white;
             font-family: Arial, sans-serif;
         }
-
+        
         h1, h2 {
             color: orange;
         }
@@ -56,7 +56,7 @@
                         const procedurePattern = /(?:CREATE|ALTER)\s+PROCEDURE(?:\s+\w+\.)?(\w+)/gi;
                         const viewPattern = /CREATE\s+VIEW(?:\s+\w+\.)?(\w+)/gi;
                         const triggerPattern = /CREATE\s+TRIGGER(?:\s+\w+\.)?(\w+)/gi;
-                        const tablePattern = /CREATE\s+TABLE(?:\s+\w+\.)?(\w+)/gi;
+                        const tablePattern = /(?:(?:CREATE|ALTER)\s+TABLE|ALTER\s+TABLE)\s+(?:\w+\.)?(\w+)/gi;
                         const indexPattern = /CREATE\s+(?:NONCLUSTERED\s+)?INDEX(?:\s+\w+)?(?:\s+ON\s+\w+)?(?:\s+USING\s+\w+)?\s+\[?([^\]\s]+)/gi;
 
                         const procedures = this.getMatches(fileContent, procedurePattern);
@@ -66,11 +66,12 @@
                         const indices = this.getMatches(fileContent, indexPattern);
 
                         const uniqueProcedures = [...new Set(procedures)];
+                        const uniqueTables = [...new Set(tables)];
 
                         this.resultado = `Procedures (${uniqueProcedures.length}):\n${uniqueProcedures.join('\n')}\n\n` +
                                          `Views (${views.length}):\n${views.join('\n')}\n\n` +
                                          `Triggers (${triggers.length}):\n${triggers.join('\n')}\n\n` +
-                                         `Tabelas (${tables.length}):\n${tables.join('\n')}\n\n` +
+                                         `Tabelas (${uniqueTables.length}):\n${uniqueTables.join('\n')}\n\n` +
                                          `Índices (${indices.length}):\n${indices.join('\n')}`;
                     };
 
