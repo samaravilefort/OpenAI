@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Análise de Script SQL</title>
+    <style>
+        body {
+            background-color: white;
+            color: black;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: orange;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ccc;
+            padding: 6px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>Análise de Script SQL</h1>
+
+        <div>
+            <label for="file-input">Selecione o arquivo SQL:</label>
+            <input type="file" id="file-input" @change="selecionarArquivo">
+        </div>
+
+        <div>
+            <h2>Resultado:</h2>
+            <textarea id="output-text" rows="10" cols="50" :disabled="true">{{ resultado }}</textarea>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    resultado: '',
+                };
+            },
+            methods: {
+                selecionarArquivo(event) {
+                    const file = event.target.files[0];
+                    const reader = new FileReader();
+
+                    reader.onload = () => {
+                        const fileContent = reader.result;
+                        const createProcedurePattern = /\bCREATE\s+PROCEDURE(?:\s+dbo\.)?(\w+)\b/gi;
+                        const alterProcedurePattern = /\bALTER\s+PROCEDURE(?:\s+dbo\.)?(\w+)\b/gi;
+                        const createViewPattern = /\bCREATE\s+VIEW(?:\s+dbo\.)?(\w+)\b/gi;
+                        const createTriggerPattern = /\bCREATE\s+TRIGGER(?:\s+dbo\.)?(\w+)\b/gi;
+                        const createTablePattern = /\bCREATE\s+TABLE(?:\s+dbo\.)?(\w+)\b/gi;
+                        const createIndexPattern = /\bCREATE\s+(?:NONCLUSTERED\s+)?INDEX\s+((?:#?\w+)+)/gi;
+
+                        const procedureNames = Array.from(fileContent.matchAll(createProcedurePattern), match => match[1]);
+                        const alterProcedureNames = Array.from(fileContent.matchAll(alterProcedurePattern), match => match[1]);
+                        const viewNames = Array.from(fileContent.matchAll(createViewPattern), match => match[1]);
+                        const triggerNames = Array.from(fileContent.matchAll(createTriggerPattern), match => match[1]);
+                        const tableNames = Array.from(fileContent.matchAll(createTablePattern), match => match[1]);
+                        const indexNames = Array.from(fileContent.matchAll(createIndexPattern), match => match[1]);
+
+                        const uniqueProcedureNames = [...new Set([...procedureNames, ...alterProcedureNames])];
+
+                        this.resultado = `Procedures (${uniqueProcedureNames.length}):\n${uniqueProcedureNames.join('\n')}\n\n` +
+                                         `Views (${viewNames.length}):\n${viewNames.join('\n')}\n\n` +
+                                           `Triggers (${triggerNames.length}):\n${triggerNames.join('\n')}\n\n` +
+                                           `Tabelas (${tableNames.length}):\n${tableNames.join('\n')}\n\n` +
+                                         `Índices (${indexNames.length}):\n${indexNames.map(name => `[${name}]`).join('\n')}`;
+                    };
+
+                    reader.readAsText(file);
+                },
+            },
+        });
+    </script>
+</body>
+</html>
