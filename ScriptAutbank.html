@@ -1,94 +1,100 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Análise de Script SQL</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <style>
-        body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        
-        h1, h2 {
-            color: orange;
-        }
+      body {
+        background-color: black;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
 
-        label {
-            color: white;
-        }
+      h1,
+      h2 {
+        color: orange;
+      }
 
-        #output-text {
-            background-color: white;
-            color: black;
-        }
+      label {
+        color: white;
+      }
+
+      #output-text {
+        background-color: white;
+        color: black;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="app">
-        <h1>Análise de Script SQL</h1>
+      <h1>Análise de Script SQL</h1>
 
-        <div>
-            <label for="file-input">Selecione o arquivo SQL:</label>
-            <input type="file" id="file-input" @change="selecionarArquivo">
-        </div>
+      <div>
+        <label for="file-input">Selecione o arquivo SQL:</label>
+        <input type="file" id="file-input" @change="selecionarArquivo" />
+      </div>
 
-        <div>
-            <h2>Resultado:</h2>
-            <textarea id="output-text" rows="10" cols="50" :disabled="true">{{ resultado }}</textarea>
-        </div>
+      <div>
+        <h2>Resultado:</h2>
+        <textarea id="output-text" rows="10" cols="50" :disabled="true">{{ resultado }}</textarea>
+      </div>
     </div>
 
     <script>
-        new Vue({
-            el: '#app',
-            data: {
-                resultado: ''
-            },
-            methods: {
-                selecionarArquivo(event) {
-                    const file = event.target.files[0];
-                    const reader = new FileReader();
+      new Vue({
+        el: "#app",
+        data: {
+          resultado: "",
+        },
+        methods: {
+          selecionarArquivo(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
 
-                    reader.onload = () => {
-                        const fileContent = reader.result;
+            reader.onload = () => {
+              const fileContent = reader.result;
 
-                        const procedurePattern = /(?:CREATE|ALTER)\s+PROCEDURE(?:\s+\w+\.)?(\w+)/gi;
-                        const viewPattern = /CREATE\s+VIEW(?:\s+\w+\.)?(\w+)/gi;
-                        const triggerPattern = /CREATE\s+TRIGGER(?:\s+\w+\.)?(\w+)/gi;
-                        const tablePattern = /(?:(?:CREATE|ALTER)\s+TABLE|ALTER\s+TABLE)\s+(?:\w+\.)?(\w+)/gi;
-                        const indexPattern = /CREATE\s+(?:NONCLUSTERED\s+)?INDEX(?:\s+\w+)?(?:\s+ON\s+\w+)?(?:\s+USING\s+\w+)?\s+\[?([^\]\s]+)/gi;
+              const procedurePattern = /(?:CREATE|ALTER)\s+PROCEDURE(?:\s+\w+\.)?(\w+)/gi;
+              const viewPattern = /CREATE\s+VIEW(?:\s+\w+\.)?(\w+)/gi;
+              const triggerPattern = /CREATE\s+TRIGGER(?:\s+\w+\.)?(\w+)/gi;
+              const tablePattern = /(?:(?:CREATE|ALTER)\s+TABLE|ALTER\s+TABLE)\s+(?:\w+\.)?(\[?\w+\]?)/gi;
+              const indexPattern = /CREATE\s+(?:NONCLUSTERED\s+)?INDEX(?:\s+\w+)?(?:\s+ON\s+\w+)?(?:\s+USING\s+\w+)?\s+\[?([^\]\s]+)/gi;
 
-                        const procedures = this.getMatches(fileContent, procedurePattern);
-                        const views = this.getMatches(fileContent, viewPattern);
-                        const triggers = this.getMatches(fileContent, triggerPattern);
-                        const tables = this.getMatches(fileContent, tablePattern);
-                        const indices = this.getMatches(fileContent, indexPattern);
+              const procedures = this.getMatches(fileContent, procedurePattern);
+              const views = this.getMatches(fileContent, viewPattern);
+              const triggers = this.getMatches(fileContent, triggerPattern);
+              const tables = this.getMatches(fileContent, tablePattern);
+              const indices = this.getMatches(fileContent, indexPattern);
 
-                        const uniqueProcedures = [...new Set(procedures)];
-                        const uniqueTables = [...new Set(tables)];
+              const uniqueProcedures = [...new Set(procedures)];
+              const uniqueTables = [...new Set(tables)];
 
-                        this.resultado = `Procedures (${uniqueProcedures.length}):\n${uniqueProcedures.join('\n')}\n\n` +
-                                         `Views (${views.length}):\n${views.join('\n')}\n\n` +
-                                         `Triggers (${triggers.length}):\n${triggers.join('\n')}\n\n` +
-                                         `Tabelas (${uniqueTables.length}):\n${uniqueTables.join('\n')}\n\n` +
-                                         `Índices (${indices.length}):\n${indices.join('\n')}`;
-                    };
+              this.resultado =
+                `Procedures (${uniqueProcedures.length}):\n${uniqueProcedures.join(
+                  "\n"
+                )}\n\n` +
+                `Views (${views.length}):\n${views.join("\n")}\n\n` +
+                `Triggers (${triggers.length}):\n${triggers.join("\n")}\n\n` +
+                `Tabelas (${uniqueTables.length}):\n${uniqueTables.join(
+                  "\n"
+                )}\n\n` +
+                `Índices (${indices.length}):\n${indices.join("\n")}`;
+            };
 
-                    reader.readAsText(file);
-                },
-                getMatches(content, pattern) {
-                    const matches = [];
-                    let match;
+            reader.readAsText(file);
+          },
+          getMatches(content, pattern) {
+            const matches = [];
+            let match;
 
-                    while ((match = pattern.exec(content)) !== null) {
-                        matches.push(match[1]);
-                    }
-
-                    return matches;
-                }
+            while ((match = pattern.exec(content)) !== null) {
+              matches.push(match[1]);
             }
-        });
+
+            return matches;
+          },
+        },
+      });
     </script>
-</body>
+  </body>
 </html>
